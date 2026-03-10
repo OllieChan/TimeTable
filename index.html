@@ -211,12 +211,13 @@
     text-transform: uppercase;
     line-height: 0.85;
     text-align: center;
-    color: #000;
+    color: var(--accent);
     position: relative;
     z-index: 2;
     opacity: 0;
     transform: scale(0.8);
     letter-spacing: -0.02em;
+    text-shadow: 0 0 80px rgba(232,200,64,0.6), 0 0 160px rgba(232,200,64,0.2);
   }
 
   .transition-title.go {
@@ -228,13 +229,52 @@
     100% { opacity: 1; transform: scale(1); }
   }
 
+  .transition-title.visible {
+    opacity: 1;
+    transform: scale(1);
+    animation: title-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes title-pulse {
+    0%, 100% { text-shadow: 0 0 80px rgba(232,200,64,0.6), 0 0 160px rgba(232,200,64,0.2); }
+    50% { text-shadow: 0 0 120px rgba(232,200,64,0.9), 0 0 240px rgba(232,200,64,0.4); }
+  }
+
+  .transition-rings {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.5s;
+  }
+
+  .transition-rings.visible { opacity: 1; }
+
+  .t-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(232,200,64,0.2);
+  }
+  .t-ring:nth-child(1) { width: 250px; height: 250px; animation: t-pulse 2s ease-in-out infinite 0s; }
+  .t-ring:nth-child(2) { width: 400px; height: 400px; animation: t-pulse 2s ease-in-out infinite 0.4s; }
+  .t-ring:nth-child(3) { width: 550px; height: 550px; animation: t-pulse 2s ease-in-out infinite 0.8s; }
+  .t-ring:nth-child(4) { width: 700px; height: 700px; animation: t-pulse 2s ease-in-out infinite 1.2s; }
+
+  @keyframes t-pulse {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.04); }
+  }
+
   .skip-hint {
     position: absolute;
     bottom: 2rem;
     font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(0,0,0,0.4);
+    color: rgba(232,200,64,0.3);
     z-index: 2;
     opacity: 0;
     animation: fade-in-hint 0.5s ease 0.8s forwards;
@@ -672,6 +712,12 @@
     <div class="t-bar"></div>
     <div class="t-bar"></div>
     <div class="t-bar"></div>
+  </div>
+  <div class="transition-rings" id="t-rings">
+    <div class="t-ring"></div>
+    <div class="t-ring"></div>
+    <div class="t-ring"></div>
+    <div class="t-ring"></div>
   </div>
   <div class="transition-title" id="t-title">TIME<br>TABLE</div>
   <div class="skip-hint">Tap to skip</div>
@@ -1135,8 +1181,16 @@ function launchApp() {
       document.querySelectorAll('.t-bar').forEach(b => b.classList.add('go'));
     });
 
-    // Auto-advance after 2.5s
-    setTimeout(() => showApp(), 2500);
+    // After initial animation settles, switch to pulsing idle state
+    setTimeout(() => {
+      const title = document.getElementById('t-title');
+      title.classList.remove('go');
+      title.classList.add('visible');
+      document.getElementById('t-rings').classList.add('visible');
+    }, 800);
+
+    // Auto-advance after 10s
+    setTimeout(() => showApp(), 10000);
   }, 250);
 }
 
